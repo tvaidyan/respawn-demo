@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace RespawnDemo.Api.Employee;
 
 [ApiController]
-[Route("[controller]")]
 public class EmployeeController : ControllerBase
 {
     private readonly IMediator mediator;
@@ -14,10 +13,10 @@ public class EmployeeController : ControllerBase
         this.mediator = mediator;
     }
 
-    [HttpGet]
-    public async Task<ActionResult<Employee>> GetEmployee(GetEmployeeRequest request)
+    [HttpGet("employees/{id:guid}")]
+    public async Task<ActionResult<Employee>> Get([FromRoute] Guid id)
     {
-        var employee = await mediator.Send(request);
+        var employee = await mediator.Send(new GetEmployeeRequest { EmployeeId = id });
 
         if (employee is null)
             return NotFound();
@@ -25,21 +24,21 @@ public class EmployeeController : ControllerBase
         return Ok(employee);
     }
 
-    [HttpPost]
-    public async Task<IActionResult> PostEmployee(AddEmployeeRequest request)
+    [HttpPost("employees")]
+    public async Task<IActionResult> Create(AddEmployeeRequest request)
     {
-        await mediator.Send(request);
-        return new OkResult();
+        var newEmployee = await mediator.Send(request);
+        return CreatedAtAction("Get", new { newEmployee.EmployeeId }, newEmployee);
     }
 
-    [HttpPut]
+    [HttpPut("employees")]
     public async Task<IActionResult> PutEmployee(UpdateEmployeeRequest request)
     {
         await mediator.Send(request);
         return new OkResult();
     }
 
-    [HttpDelete]
+    [HttpDelete("employees")]
     public async Task<IActionResult> DeleteEmployee(DeleteEmployeeRequest request)
     {
         await mediator.Send(request);

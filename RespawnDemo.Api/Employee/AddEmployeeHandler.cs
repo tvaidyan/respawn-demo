@@ -3,7 +3,7 @@ using MediatR;
 using RespawnDemo.Api.Shared.DataAccess;
 
 namespace RespawnDemo.Api.Employee;
-public class AddEmployeeRequest : IRequest<Unit>
+public class AddEmployeeRequest : IRequest<Employee>
 {
     public DateTime HireDate { get; set; }
     public string FirstName { get; set; } = string.Empty;
@@ -11,7 +11,7 @@ public class AddEmployeeRequest : IRequest<Unit>
     public string FavoriteColor { get; set; } = string.Empty;
 }
 
-public class AddEmployeeHandler : IRequestHandler<AddEmployeeRequest, Unit>
+public class AddEmployeeHandler : IRequestHandler<AddEmployeeRequest, Employee>
 {
     private readonly IDatabase database;
 
@@ -20,7 +20,7 @@ public class AddEmployeeHandler : IRequestHandler<AddEmployeeRequest, Unit>
         this.database = database;
     }
 
-    public async Task<Unit> Handle(AddEmployeeRequest request, CancellationToken cancellationToken)
+    public async Task<Employee> Handle(AddEmployeeRequest request, CancellationToken cancellationToken)
     {
         var parameters = new DynamicParameters();
         parameters.Add("@hireDate", request.HireDate);
@@ -28,8 +28,6 @@ public class AddEmployeeHandler : IRequestHandler<AddEmployeeRequest, Unit>
         parameters.Add("@lastName", request.LastName);
         parameters.Add("@favoriteColor", request.FavoriteColor);
 
-        await database.ExecuteFileAsync("Employee/insert-employee.sql", parameters);
-
-        return Unit.Value;
+        return (await database.ExecuteFileAsync<Employee>("Employee/insert-employee.sql", parameters)).FirstOrDefault()!;
     }
 }

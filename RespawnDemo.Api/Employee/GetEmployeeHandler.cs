@@ -3,9 +3,10 @@ using MediatR;
 using RespawnDemo.Api.Shared.DataAccess;
 
 namespace RespawnDemo.Api.Employee;
+
 public class GetEmployeeRequest : IRequest<Employee?>
 {
-    public string City { get; set; } = string.Empty;
+    public Guid EmployeeId { get; set; }
 }
 
 public class GetEmployeeHandler : IRequestHandler<GetEmployeeRequest, Employee?>
@@ -20,7 +21,7 @@ public class GetEmployeeHandler : IRequestHandler<GetEmployeeRequest, Employee?>
     public async Task<Employee?> Handle(GetEmployeeRequest request, CancellationToken cancellationToken)
     {
         var parameters = new DynamicParameters();
-        parameters.Add("@employeeId", request.City);
+        parameters.Add("@employeeId", request.EmployeeId);
 
         return (await database.ExecuteFileAsync<Employee>("Employee/select-employee.sql", parameters)).FirstOrDefault();
     }
