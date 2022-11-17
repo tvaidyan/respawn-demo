@@ -5,7 +5,7 @@ using RespawnDemo.Api.Shared.DataAccess;
 namespace RespawnDemo.Api.Employee;
 public class DeleteEmployeeRequest : IRequest<Unit>
 {
-    public string EmployeeId { get; set; } = string.Empty;
+    public Guid EmployeeId { get; set; }
 }
 
 public class DeleteEmployeeHandler : IRequestHandler<DeleteEmployeeRequest, Unit>

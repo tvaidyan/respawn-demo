@@ -39,10 +39,10 @@ public class EmployeeController : ControllerBase
         return new OkResult();
     }
 
-    [HttpDelete("employees")]
-    public async Task<IActionResult> DeleteEmployee(DeleteEmployeeRequest request)
+    [HttpDelete("employees/{employeeId:guid}")]
+    public async Task<IActionResult> DeleteEmployee([FromRoute] Guid employeeId)
     {
-        await mediator.Send(request);
-        return new OkResult();
+        await mediator.Send(new DeleteEmployeeRequest { EmployeeId = employeeId });
+        return new NoContentResult();
     }
 }

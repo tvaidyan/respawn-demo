@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RespawnDemo.Api.Employee;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
@@ -32,6 +33,31 @@ namespace RespawnDemo.IntegrationTests
                 command.Connection.Open();
                 command.ExecuteNonQuery();
             }
+        }
+
+        public List<Employee> GetAllEmployees()
+        {
+            var sql = "SELECT * FROM Employees";
+
+            using SqlConnection connection = new SqlConnection(
+                   databaseConnectionString);
+            SqlCommand command = new(sql, connection);
+            command.Connection.Open();
+            using SqlDataReader reader = command.ExecuteReader();
+
+            var employees = new List<Employee>();
+            while (reader.Read())
+            {
+                employees.Add(new Employee
+                {
+                    EmployeeId = (Guid)reader["EmployeeId"],
+                    FavoriteColor = (string)reader["FavoriteColor"],
+                    FirstName = (string)reader["FirstName"],
+                    LastName = (string)reader["LastName"]
+                });
+            }
+
+            return employees;
         }
     }
 }
