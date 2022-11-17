@@ -33,14 +33,14 @@ public class EmployeeController : ControllerBase
     }
 
     [HttpPut("employees")]
-    public async Task<IActionResult> PutEmployee(UpdateEmployeeRequest request)
+    public async Task<IActionResult> Update(UpdateEmployeeRequest request)
     {
         await mediator.Send(request);
         return new OkResult();
     }
 
     [HttpDelete("employees/{employeeId:guid}")]
-    public async Task<IActionResult> DeleteEmployee([FromRoute] Guid employeeId)
+    public async Task<IActionResult> Delete([FromRoute] Guid employeeId)
     {
         await mediator.Send(new DeleteEmployeeRequest { EmployeeId = employeeId });
         return new NoContentResult();

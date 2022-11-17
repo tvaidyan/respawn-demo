@@ -8,7 +8,7 @@ public class UpdateEmployeeRequest : IRequest<Unit>
     public DateTime HireDate { get; set; }
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
-    public string EmployeeId { get; set; } = Guid.NewGuid().ToString();
+    public Guid EmployeeId { get; set; } = Guid.NewGuid();
     public string FavoriteColor { get; set; } = string.Empty;
 }
 
