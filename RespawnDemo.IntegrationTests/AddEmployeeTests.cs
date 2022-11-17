@@ -9,27 +9,24 @@ using Xunit;
 namespace RespawnDemo.IntegrationTests;
 
 [Collection("EmployeeDbCollection")]
-public class AddEmployeeTests
+public class AddEmployeeTests : IAsyncLifetime
 {
-    private readonly DbFixture dbFixture;
+    private readonly string databaseConnectionString;
+    private readonly Func<Task> resetDatabase;
+    private readonly HttpClient client;
 
-    public AddEmployeeTests(DbFixture dbFixture)
+    public AddEmployeeTests(EmployeeApiFactory apiFactory)
     {
-        this.dbFixture = dbFixture;
+        databaseConnectionString = apiFactory.DatabaseConnectionString;
+        this.client = apiFactory.HttpClient;
+        resetDatabase = apiFactory.ResetDatabaseAsync;
     }
 
     [Fact]
     public async Task CanCreateAndRetrieveEmployee()
     {
-        var factory = new CustomWebApplicationFactory<Program>(services =>
-        {
-            services.SetupDatabaseConnection(dbFixture.DatabaseConnectionString);
-        });
-
-        var employeeFactory = new EmployeeFactory(dbFixture.DatabaseConnectionString);
+        var employeeFactory = new EmployeeFactory(databaseConnectionString);
         employeeFactory.CreateRandomSamplingOfEmployees();
-
-        var client = factory.CreateClient();
 
         var employee = new AddEmployeeRequest
         {
@@ -60,4 +57,8 @@ public class AddEmployeeTests
         employeeCreated.LastName.Should().Be("Willis");
         employeeCreated.FavoriteColor.Should().Be("Red");
     }
+
+    public Task DisposeAsync() => resetDatabase();
+
+    public Task InitializeAsync() => Task.CompletedTask;
 }

@@ -8,27 +8,24 @@ using Xunit;
 namespace RespawnDemo.IntegrationTests;
 
 [Collection("EmployeeDbCollection")]
-public class GetAllEmployeesTests
+public class GetAllEmployeesTests : IAsyncLifetime
 {
-    private readonly DbFixture dbFixture;
+    private readonly string databaseConnectionString;
+    private readonly Func<Task> resetDatabase;
+    private readonly HttpClient client;
 
-    public GetAllEmployeesTests(DbFixture dbFixture)
+    public GetAllEmployeesTests(EmployeeApiFactory apiFactory)
     {
-        this.dbFixture = dbFixture;
+        databaseConnectionString = apiFactory.DatabaseConnectionString;
+        this.client = apiFactory.HttpClient;
+        resetDatabase = apiFactory.ResetDatabaseAsync;
     }
 
     [Fact]
     public async Task CanGetAllEmployees()
     {
-        var factory = new CustomWebApplicationFactory<Program>(services =>
-        {
-            services.SetupDatabaseConnection(dbFixture.DatabaseConnectionString);
-        });
-
-        var employeeFactory = new EmployeeFactory(dbFixture.DatabaseConnectionString);
+        var employeeFactory = new EmployeeFactory(databaseConnectionString);
         employeeFactory.CreateRandomSamplingOfEmployees(10);
-        var createdEmployees = employeeFactory.GetAllEmployees();
-        var client = factory.CreateClient();
 
         var response = await client.SendAsync(new HttpRequestMessage
         {
@@ -47,4 +44,8 @@ public class GetAllEmployeesTests
         employeesFetched.Should().NotBeNull();
         employeesFetched.Count.Should().Be(10);
     }
+
+    public Task DisposeAsync() => resetDatabase();
+
+    public Task InitializeAsync() => Task.CompletedTask;
 }

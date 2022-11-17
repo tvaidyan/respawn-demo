@@ -9,29 +9,26 @@ using Xunit;
 namespace RespawnDemo.IntegrationTests;
 
 [Collection("EmployeeDbCollection")]
-public class UpdateEmployeeTests
+public class UpdateEmployeeTests : IAsyncLifetime
 {
-    private readonly DbFixture dbFixture;
+    private readonly string databaseConnectionString;
+    private readonly Func<Task> resetDatabase;
+    private readonly HttpClient client;
 
-    public UpdateEmployeeTests(DbFixture dbFixture)
+    public UpdateEmployeeTests(EmployeeApiFactory apiFactory)
     {
-        this.dbFixture = dbFixture;
+        databaseConnectionString = apiFactory.DatabaseConnectionString;
+        this.client = apiFactory.HttpClient;
+        resetDatabase = apiFactory.ResetDatabaseAsync;
     }
 
     [Fact]
     public async Task CanCreateAndRetrieveEmployee()
     {
-        var factory = new CustomWebApplicationFactory<Program>(services =>
-        {
-            services.SetupDatabaseConnection(dbFixture.DatabaseConnectionString);
-        });
-
-        var employeeFactory = new EmployeeFactory(dbFixture.DatabaseConnectionString);
+        var employeeFactory = new EmployeeFactory(databaseConnectionString);
         employeeFactory.CreateRandomSamplingOfEmployees(10);
         var createdEmployees = employeeFactory.GetAllEmployees();
         var employeeToUpdate = createdEmployees[new Random().Next(0, 9)];
-
-        var client = factory.CreateClient();
 
         var employee = new UpdateEmployeeRequest
         {
@@ -63,4 +60,8 @@ public class UpdateEmployeeTests
         updatedEmployee.LastName.Should().Be("Hanks");
         updatedEmployee.FavoriteColor.Should().Be("Blue");
     }
+
+    public Task DisposeAsync() => resetDatabase();
+
+    public Task InitializeAsync() => Task.CompletedTask;
 }

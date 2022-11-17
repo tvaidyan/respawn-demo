@@ -2,11 +2,11 @@
 using System.Data.SqlClient;
 using System.Text;
 
-namespace RespawnDemo.IntegrationTests
+namespace RespawnDemo.IntegrationTests.Shared
 {
     public class EmployeeFactory
     {
-        private string databaseConnectionString;
+        private readonly string databaseConnectionString;
 
         public EmployeeFactory(string databaseConnectionString)
         {

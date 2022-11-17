@@ -16,12 +16,12 @@ public static class ServiceCollectionExtensions
             }
         }
 
-        services.AddTransient(typeof(TService), (sp) => implementationFactory(sp));
+        services.AddTransient(typeof(TService), (sp) => implementationFactory(sp)!);
     }
 
     public static void RemoveService(this IServiceCollection services, string serviceName)
     {
-        var serviceDescriptors = services.Where(x => x.ServiceType.FullName.Contains(serviceName)).ToList();
+        var serviceDescriptors = services.Where(x => x.ServiceType.FullName!.Contains(serviceName)).ToList();
         foreach (var serviceDescriptor in serviceDescriptors)
         {
             services.Remove(serviceDescriptor);

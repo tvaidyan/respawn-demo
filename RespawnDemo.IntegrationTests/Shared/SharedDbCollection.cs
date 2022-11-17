@@ -3,8 +3,8 @@
 namespace RespawnDemo.IntegrationTests.Shared
 {
     [CollectionDefinition("EmployeeDbCollection")]
-public class SharedDbCollection : ICollectionFixture<DbFixture>
-{
+    public class SharedDbCollection : ICollectionFixture<EmployeeApiFactory>
+    {
 
-}
+    }
 }

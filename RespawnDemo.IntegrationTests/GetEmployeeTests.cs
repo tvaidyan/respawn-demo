@@ -8,28 +8,26 @@ using Xunit;
 namespace RespawnDemo.IntegrationTests;
 
 [Collection("EmployeeDbCollection")]
-public class GetEmployeeTests
+public class GetEmployeeTests : IAsyncLifetime
 {
-    private readonly DbFixture dbFixture;
+    private readonly string databaseConnectionString;
+    private readonly Func<Task> resetDatabase;
+    private readonly HttpClient client;
 
-    public GetEmployeeTests(DbFixture dbFixture)
+    public GetEmployeeTests(EmployeeApiFactory apiFactory)
     {
-        this.dbFixture = dbFixture;
+        databaseConnectionString = apiFactory.DatabaseConnectionString;
+        this.client = apiFactory.HttpClient;
+        resetDatabase = apiFactory.ResetDatabaseAsync;
     }
 
     [Fact]
     public async Task CanGetSpecificEmployee()
     {
-        var factory = new CustomWebApplicationFactory<Program>(services =>
-        {
-            services.SetupDatabaseConnection(dbFixture.DatabaseConnectionString);
-        });
-
-        var employeeFactory = new EmployeeFactory(dbFixture.DatabaseConnectionString);
+        var employeeFactory = new EmployeeFactory(databaseConnectionString);
         employeeFactory.CreateRandomSamplingOfEmployees(10);
         var createdEmployees = employeeFactory.GetAllEmployees();
         var employeeToFetch = createdEmployees[new Random().Next(0, 9)];
-        var client = factory.CreateClient();
 
         var response = await client.SendAsync(new HttpRequestMessage
         {
@@ -50,4 +48,8 @@ public class GetEmployeeTests
         employeeFetched.LastName.Should().Be(employeeToFetch.LastName);
         employeeFetched.FavoriteColor.Should().Be(employeeToFetch.FavoriteColor);
     }
+
+    public Task DisposeAsync() => resetDatabase();
+
+    public Task InitializeAsync() => Task.CompletedTask;
 }
