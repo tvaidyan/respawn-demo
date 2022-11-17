@@ -4,7 +4,9 @@ using System.Net;
 using Xunit;
 
 namespace RespawnDemo.IntegrationTests;
-public class DeleteEmployeeTests : IClassFixture<DbFixture>
+
+[Collection("EmployeeDbCollection")]
+public class DeleteEmployeeTests
 {
     private readonly DbFixture dbFixture;
 

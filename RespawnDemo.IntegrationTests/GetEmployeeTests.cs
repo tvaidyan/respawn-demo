@@ -6,7 +6,9 @@ using System.Text.Json;
 using Xunit;
 
 namespace RespawnDemo.IntegrationTests;
-public class GetEmployeeTests : IClassFixture<DbFixture>
+
+[Collection("EmployeeDbCollection")]
+public class GetEmployeeTests
 {
     private readonly DbFixture dbFixture;
 
