@@ -47,16 +47,16 @@ public class AddEmployeeTests : IClassFixture<DbFixture>
             RequestUri = new Uri(createEmployeeResponse.Headers.Location!.ToString().Replace("localhost", "localhost:7050"))
         })).Content.ReadAsStringAsync().Result;
 
-        var customerCreated = JsonSerializer.Deserialize<Employee>(response, new JsonSerializerOptions
+        var employeeCreated = JsonSerializer.Deserialize<Employee>(response, new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true
         })!;
 
         createEmployeeResponse.StatusCode.Should().Be(HttpStatusCode.Created);
 
-        customerCreated.Should().NotBeNull();
-        customerCreated!.FirstName.Should().Be("Bruce");
-        customerCreated.LastName.Should().Be("Willis");
-        customerCreated.FavoriteColor.Should().Be("Red");
+        employeeCreated.Should().NotBeNull();
+        employeeCreated!.FirstName.Should().Be("Bruce");
+        employeeCreated.LastName.Should().Be("Willis");
+        employeeCreated.FavoriteColor.Should().Be("Red");
     }
 }
