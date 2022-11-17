@@ -20,6 +20,11 @@
     <EmbeddedResource Include="**/Employee/*.sql" />
   </ItemGroup>
 
+
+  <ItemGroup>
+    <None Remove="Employee\select-all-employees.sql" />
+  </ItemGroup>
+
   <PropertyGroup>
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
   </PropertyGroup>

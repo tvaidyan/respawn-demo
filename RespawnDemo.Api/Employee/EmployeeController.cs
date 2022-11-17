@@ -13,6 +13,13 @@ public class EmployeeController : ControllerBase
         this.mediator = mediator;
     }
 
+    [HttpGet("employees")]
+    public async Task<IActionResult> GetAllEmployees()
+    {
+        var employees = await mediator.Send(new GetAllEmployeesRequest());
+        return Ok(employees);
+    }
+
     [HttpGet("employees/{employeeId:guid}")]
     public async Task<ActionResult<Employee>> Get([FromRoute] Guid employeeId)
     {
