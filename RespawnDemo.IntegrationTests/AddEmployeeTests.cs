@@ -5,6 +5,7 @@ using System.Text.Json;
 using RespawnDemo.Api.Employee;
 using RespawnDemo.IntegrationTests.Shared;
 using Xunit;
+using System.Net;
 
 namespace RespawnDemo.IntegrationTests;
 public class AddEmployeeTests : IClassFixture<DbFixture>
@@ -17,22 +18,23 @@ public class AddEmployeeTests : IClassFixture<DbFixture>
     }
 
     [Fact]
-    public async Task CanSaveAndRetrieveEmployees()
+    public async Task CanCreateAndRetrieveEmployee()
     {
         var factory = new CustomWebApplicationFactory<Program>(services =>
         {
             services.SetupDatabaseConnection(dbFixture.DatabaseConnectionString);
         });
 
-        CreateRandomSamplingOfEmployees();
+        var employeeFactory = new EmployeeFactory(dbFixture.DatabaseConnectionString);
+        employeeFactory.CreateRandomSamplingOfEmployees();
 
         var client = factory.CreateClient();
 
         var employee = new AddEmployeeRequest
         {
             HireDate = DateTime.UtcNow.AddDays(-90),
-            FirstName = "Test",
-            LastName = "Person",
+            FirstName = "Bruce",
+            LastName = "Willis",
             FavoriteColor = "Red"
         };
 
@@ -45,33 +47,16 @@ public class AddEmployeeTests : IClassFixture<DbFixture>
             RequestUri = new Uri(createEmployeeResponse.Headers.Location!.ToString().Replace("localhost", "localhost:7050"))
         })).Content.ReadAsStringAsync().Result;
 
-        var getResponse = JsonSerializer.Deserialize<Employee>(response, new JsonSerializerOptions
+        var customerCreated = JsonSerializer.Deserialize<Employee>(response, new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true
         })!;
 
-        //getResponse.WeatherForecasts.Should().HaveCount(1);
-        //getResponse.WeatherForecasts.Should().ContainSingle(x =>
-        //    x.TemperatureC == 30
-        //    && x.Summary == "Sunny");
-    }
+        createEmployeeResponse.StatusCode.Should().Be(HttpStatusCode.Created);
 
-    private void CreateRandomSamplingOfEmployees()
-    {
-        var insertSQL = new StringBuilder();
-        for (int i = 0; i < 25; i++)
-        {
-            insertSQL.AppendLine("INSERT INTO Employees ([EmployeeId],[HireDate],[FirstName],[LastName]" +
-                ",[FavoriteColor]) " +
-                $" VALUES(NEWID(), GETUTCDATE(), 'First-{i}', 'Last-{i}', 'Color-{i}');");
-        }
-
-        using (SqlConnection connection = new SqlConnection(
-               dbFixture.DatabaseConnectionString))
-        {
-            SqlCommand command = new SqlCommand(insertSQL.ToString(), connection);
-            command.Connection.Open();
-            command.ExecuteNonQuery();
-        }
+        customerCreated.Should().NotBeNull();
+        customerCreated!.FirstName.Should().Be("Bruce");
+        customerCreated.LastName.Should().Be("Willis");
+        customerCreated.FavoriteColor.Should().Be("Red");
     }
 }
