@@ -1,11 +1,10 @@
 ﻿using FluentAssertions;
-using System.Data.SqlClient;
-using System.Text;
-using System.Text.Json;
 using RespawnDemo.Api.Employee;
 using RespawnDemo.IntegrationTests.Shared;
-using Xunit;
 using System.Net;
+using System.Text;
+using System.Text.Json;
+using Xunit;
 
 namespace RespawnDemo.IntegrationTests;
 public class AddEmployeeTests : IClassFixture<DbFixture>
