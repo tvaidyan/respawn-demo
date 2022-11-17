@@ -28,6 +28,15 @@ public class AddEmployeeHandler : IRequestHandler<AddEmployeeRequest, Employee>
         parameters.Add("@lastName", request.LastName);
         parameters.Add("@favoriteColor", request.FavoriteColor);
 
-        return (await database.ExecuteFileAsync<Employee>("Employee/insert-employee.sql", parameters)).FirstOrDefault()!;
+        try
+        {
+            return (await database.ExecuteFileAsync<Employee>("Employee/insert-employee.sql", parameters)).FirstOrDefault()!;
+        }
+        catch (Exception e)
+        {
+            Console.Error.WriteLine(e);
+            throw;
+        }
+        
     }
 }

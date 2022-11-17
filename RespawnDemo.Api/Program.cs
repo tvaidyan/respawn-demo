@@ -1,5 +1,5 @@
 using MediatR;
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 using Microsoft.Extensions.FileProviders;
 using RespawnDemo.Api.Shared.DataAccess;
 using System.Data;

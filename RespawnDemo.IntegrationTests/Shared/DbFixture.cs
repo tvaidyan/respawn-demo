@@ -4,6 +4,7 @@ using DotNet.Testcontainers.Containers;
 using DotNet.Testcontainers.Networks;
 
 namespace RespawnDemo.IntegrationTests.Shared;
+
 public class DbFixture : IDisposable
 {
     private MsSqlTestcontainer dbContainer;
@@ -19,7 +20,7 @@ public class DbFixture : IDisposable
 
     public string DatabaseConnectionString
     {
-        get { return dbContainer.ConnectionString.Replace("master", databaseName) + ";Encrypt=False;TrustServerCertificate=True"; }
+        get { return this.dbContainer.ConnectionString.Replace("master", databaseName); }
     }
 
     public DbFixture()
@@ -57,7 +58,7 @@ public class DbFixture : IDisposable
             .WithNetwork(testNetwork)
             .WithImage("erikbra/grate")
             .WithBindMount(sqlMigrationsBaseDirectory, "/sql-migrations")
-            .WithCommand(@$"--connectionstring=Server={testSqlServerName};Database={databaseName};User ID=sa;Password=yourStrong(!)Password;TrustServerCertificate=True;Encrypt=False;", "--files=/sql-migrations");
+            .WithCommand(@$"--connectionstring=Server={testSqlServerName};Database={databaseName};User ID=sa;Password=yourStrong(!)Password;TrustServerCertificate=True", "--files=/sql-migrations");
 
         grate = grateBuilder.Build();
         grate.StartAsync().Wait();

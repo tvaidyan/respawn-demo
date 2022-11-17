@@ -3,7 +3,7 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[Employees](
-	[EmployeeId] [nvarchar(100)] NOT NULL,
+	[EmployeeId] [UNIQUEIDENTIFIER] NOT NULL,
 	[FirstName] [nvarchar](100) NOT NULL,
 	[LastName] [nvarchar](100) NOT NULL,
 	[FavoriteColor] [nvarchar](100) NOT NULL,

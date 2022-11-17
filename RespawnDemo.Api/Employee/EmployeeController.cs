@@ -13,10 +13,10 @@ public class EmployeeController : ControllerBase
         this.mediator = mediator;
     }
 
-    [HttpGet("employees/{id:guid}")]
-    public async Task<ActionResult<Employee>> Get([FromRoute] Guid id)
+    [HttpGet("employees/{employeeId:guid}")]
+    public async Task<ActionResult<Employee>> Get([FromRoute] Guid employeeId)
     {
-        var employee = await mediator.Send(new GetEmployeeRequest { EmployeeId = id });
+        var employee = await mediator.Send(new GetEmployeeRequest { EmployeeId = employeeId });
 
         if (employee is null)
             return NotFound();
@@ -28,7 +28,8 @@ public class EmployeeController : ControllerBase
     public async Task<IActionResult> Create(AddEmployeeRequest request)
     {
         var newEmployee = await mediator.Send(request);
-        return CreatedAtAction("Get", new { newEmployee.EmployeeId }, newEmployee);
+        var employeeId = newEmployee.EmployeeId.ToString();
+        return CreatedAtAction("Get", new { employeeId }, newEmployee);
     }
 
     [HttpPut("employees")]

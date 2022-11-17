@@ -1,5 +1,5 @@
 ﻿using FluentAssertions;
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 using System.Text;
 using System.Text.Json;
 using RespawnDemo.Api.Employee;
@@ -24,11 +24,11 @@ public class AddEmployeeTests : IClassFixture<DbFixture>
             services.SetupDatabaseConnection(dbFixture.DatabaseConnectionString);
         });
 
+        CreateRandomSamplingOfEmployees();
+
         var client = factory.CreateClient();
 
-        CreateRandomSamplingOfWeatherForecastsInTheDatabase();
-
-        var forecast = new AddEmployeeRequest
+        var employee = new AddEmployeeRequest
         {
             HireDate = DateTime.UtcNow.AddDays(-90),
             FirstName = "Test",
@@ -36,14 +36,13 @@ public class AddEmployeeTests : IClassFixture<DbFixture>
             FavoriteColor = "Red"
         };
 
-        HttpContent c = new StringContent(JsonSerializer.Serialize(forecast), Encoding.UTF8, "application/json");
-        await client.PostAsync("/employee", c);
+        HttpContent createEmployeePayload = new StringContent(JsonSerializer.Serialize(employee), Encoding.UTF8, "application/json");
+        var createEmployeeResponse = await client.PostAsync("/employees", createEmployeePayload);
 
         var response = (await client.SendAsync(new HttpRequestMessage
         {
             Method = HttpMethod.Get,
-            RequestUri = new Uri("https://localhost:7050/employee"),
-            Content = new StringContent(JsonSerializer.Serialize(new Employee { EmployeeId = "TEST1234" }), Encoding.UTF8, "application/json")
+            RequestUri = new Uri(createEmployeeResponse.Headers.Location!.ToString().Replace("localhost", "localhost:7050"))
         })).Content.ReadAsStringAsync().Result;
 
         var getResponse = JsonSerializer.Deserialize<Employee>(response, new JsonSerializerOptions
@@ -57,14 +56,14 @@ public class AddEmployeeTests : IClassFixture<DbFixture>
         //    && x.Summary == "Sunny");
     }
 
-    private void CreateRandomSamplingOfWeatherForecastsInTheDatabase()
+    private void CreateRandomSamplingOfEmployees()
     {
         var insertSQL = new StringBuilder();
         for (int i = 0; i < 25; i++)
         {
             insertSQL.AppendLine("INSERT INTO Employees ([EmployeeId],[HireDate],[FirstName],[LastName]" +
                 ",[FavoriteColor]) " +
-                $" VALUES('Emp{i}', GETUTCDATE(), 'First-{i}', 'Last-{i}', 'Color-{i}');");
+                $" VALUES(NEWID(), GETUTCDATE(), 'First-{i}', 'Last-{i}', 'Color-{i}');");
         }
 
         using (SqlConnection connection = new SqlConnection(
